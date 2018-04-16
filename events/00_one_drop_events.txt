@@ -81,6 +81,7 @@ character_event = {
 				set_variable = { which = "baby_blood_level" which = PREV }
 				set_variable = { which = "my_blood_level" which = "baby_blood_level" }
 				set_variable = { which = "baby_blood_level" value = 0 }
+				add_trait = one_drop
 			}
 		}
 	}
