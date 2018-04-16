@@ -1,6 +1,6 @@
 namespace = one_drop
 
-character_event = {
+character_event = { # Fires for women who're carrying a tracked child and calculates what percentage of the child's blood will be the progenitor's
 	id = one_drop.1
 	hide_window = yes
 	is_triggered_only = yes # on_pregnancy
@@ -63,7 +63,7 @@ character_event = {
 	}
 }
 
-character_event = {
+character_event = { # Set the one_drop trait for direct descendants and set the blood levels for all tracked newborns
 	id = one_drop.2
 	hide_window = yes
 	is_triggered_only = yes # on_birth
@@ -86,7 +86,7 @@ character_event = {
 		}
 	}
 }
-character_event = {
+character_event = { # Perform some cleanup after the birth - "cleanup the after birth "eww, gross
 	id = one_drop.3
 	hide_window = yes
 	is_triggered_only = yes # on_post_birth - for cleanup just in case of twins
@@ -103,5 +103,94 @@ character_event = {
 			set_variable = { which = "baby_blood_level" value = 0 }
 			clr_character_flag = flag_one_drop_baby
 		}
+	}
+}
+
+character_event = { # An auto cucking event
+	id = one_drop.5
+	hide_window = yes
+	
+	only_women = yes
+	min_age = 16
+	max_age = 45
+	only_capable = yes
+	is_sick = no
+	
+	trigger = {
+		the_source = { is_alive = yes } # If the progenitor is dead, he can't cuck
+		OR = {
+			is_ruler = yes
+			any_spouse = { is_ruler = yes }
+			any_consort = { is_ruler = yes }
+			AND = { # If she's pregnant with someone else's child, we can still squeeze in there
+				is_pregnant = yes
+				father_of_unborn = {
+					the_source = {
+						NOT = { character = PREV }
+					}
+				}
+			}
+			NOT = { is_pregnant = yes }
+		}
+		NOT = {
+			any_child = {
+				is_alive = yes
+				trait = one_drop
+				count = 3
+			}
+		}
+		
+	}
+	
+	mean_time_to_happen = {
+		months = 12
+		
+		modifier = { # Slow down the cucking if she already has some of your children
+			factor = 1.5
+			any_child = {
+				is_alive = yes
+				trait = one_drop
+			}
+		}
+		
+		modifier = {
+			factor = 1.5
+			any_child = {
+				is_alive = yes
+				trait = one_drop
+				count = 2
+			}
+		}
+	}
+	
+	option = { # Commands for wives and concubines
+		trigger = {
+			the_source = {
+				if = {
+					limit = {
+						OR = {
+							any_spouse = { character = ROOT }
+							any_spouse = { character = ROOT }
+						}
+					}
+				}
+			}
+		}
+		the_source = { ROOT = { unsafe_impregnate = PREV } }
+	}
+	option = {
+		trigger = { # Commands for unknown women
+			the_source = {
+				if = {
+					limit = {
+						NOR = {
+							any_spouse = { character = ROOT }
+							any_spouse = { character = ROOT }
+						}
+					}
+				}
+			}
+		}
+		the_source = { ROOT = { unsafe_impregnate_cuckoo = PREV } }
 	}
 }
