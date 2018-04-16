@@ -1,0 +1,106 @@
+namespace = one_drop
+
+character_event = {
+	id = one_drop.1
+	hide_window = yes
+	is_triggered_only = yes # on_pregnancy
+	
+	only_women = yes
+	
+	trigger = {
+		OR = {
+			father_of_unborn = {
+				OR = {
+					trait = one_drop
+					trait = the_source
+				}
+			}
+			trait = one_drop
+		}
+	}
+	
+	option = {
+		# Determine how much source blood: 1000 = 100%
+		if = { # 1st generation bastard
+			limit = { father_of_unborn = { trait = the_source } }
+			set_character_flag = flag_one_drop_baby
+			set_variable = { which = "p_blood_level" value = 1000 } # Straight from the tap, baby!!one
+		}
+		else_if = { # Father is a descendant
+			limit = { father_of_unborn = { trait = one_drop } }
+			if = {
+				limit = { father_of_unborn = { is_alive = yes } }
+				father_of_unborn = {
+					set_variable = { which = "p_blood_level" which = "my_blood_level" }
+					ROOT = { set_variable = { which = "p_blood_level" which = PREV } }
+					set_variable = { which = "p_blood_level" value = 0 }
+				}
+			}
+			else = {
+				set_variable = { which = "p_blood_level" value = 10 } # Dead fathers will not contain any variable info so assume 1%
+			}
+		}
+		else = {
+			set_variable = { which = "p_blood_level" value = 0 }
+		}
+		if = {
+			limit = { trait = one_drop }
+			if = {
+				limit = { father_of_unborn = { is_alive = yes } }
+				set_variable = { which = "m_blood_level" which = "my_blood_level" }
+			}
+			else = {
+				set_variable = { which = "m_blood_level" value = 0 }
+			}
+		}
+		# Average out the blood level for the newborn by adding the values for both parents and dividing by two
+		set_variable = { which = "baby_blood_level" value = 0 }
+		change_variable = { which = "baby_blood_level" which = "p_blood_level" }
+		change_variable = { which = "baby_blood_level" which = "m_blood_level" }
+		divide_variable = { which = "baby_blood_level" value = 2 }
+		set_variable = { which = "m_blood_level" value = 0 }
+		set_variable = { which = "p_blood_level" value = 0 }
+	}
+}
+
+character_event = {
+	id = one_drop.2
+	hide_window = yes
+	is_triggered_only = yes # on_birth
+	
+	trigger = {
+		OR = {
+			trait = one_drop
+			mother = { has_character_flag = flag_one_drop_baby }
+		}
+	}
+	
+	option = {
+		mother = {
+			ROOT = { 
+				set_variable = { which = "baby_blood_level" which = PREV }
+				set_variable = { which = "my_blood_level" which = "baby_blood_level" }
+				set_variable = { which = "baby_blood_level" value = 0 }
+			}
+		}
+	}
+}
+character_event = {
+	id = one_drop.3
+	hide_window = yes
+	is_triggered_only = yes # on_post_birth - for cleanup just in case of twins
+	
+	trigger = {
+		OR = {
+			trait = one_drop
+			mother = { has_character_flag = flag_one_drop_baby }
+		}
+	}
+	
+	option = {
+		mother = {
+			set_variable = { which = "baby_blood_level" value = 0 }
+			clr_character_flag = flag_one_drop_baby
+		}
+	}
+}

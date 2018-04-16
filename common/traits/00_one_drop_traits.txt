@@ -1,0 +1,14 @@
+# traits used to track direct descendants
+
+one_drop = {	
+	hidden = no
+	inherit_chance = 100
+	random = no
+}
+
+the_source = {	
+	hidden = yes
+	inherit_chance = 0
+	random = no
+	cached = yes
+}

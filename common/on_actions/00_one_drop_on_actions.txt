@@ -1,0 +1,17 @@
+on_pregnancy = {
+	events = {
+		one_blood.1
+	}
+}
+
+on_birth = {
+	events = {
+		one_blood.2
+	}
+}
+
+on_post_birth = {
+	events = {
+		one_blood.3
+	}
+}

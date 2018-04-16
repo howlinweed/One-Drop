@@ -1,0 +1,9 @@
+spriteTypes = {
+	spriteType = {
+		name = "GFX_trait_one_drop"
+		texturefile = "gfx/traits/one_drop.dds"
+		 noOfFrames = 1
+		 norefcount = yes
+		 effectFile = "gfx/FX/buttonstate.lua"
+	}
+}
