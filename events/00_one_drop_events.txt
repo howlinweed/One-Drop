@@ -71,7 +71,16 @@ character_event = { # Set the one_drop trait for direct descendants and set the 
 	trigger = {
 		OR = {
 			trait = one_drop
-			mother = { has_character_flag = flag_one_drop_baby }
+			AND = {
+				mother = { has_character_flag = flag_one_drop_baby }
+				OR = {
+					real_father_even_if_dead = { trait = the_source }
+					AND = {
+						father_even_if_dead = { trait = the_source }
+						NOT = { real_father_even_if_dead = { always = yes } }
+					}
+				}
+			}
 		}
 	}
 	
@@ -92,10 +101,7 @@ character_event = { # Perform some cleanup after the birth - "cleanup the after 
 	is_triggered_only = yes # on_post_birth - for cleanup just in case of twins
 	
 	trigger = {
-		OR = {
-			trait = one_drop
-			mother = { has_character_flag = flag_one_drop_baby }
-		}
+		trait = one_drop
 	}
 	
 	option = {
@@ -122,15 +128,6 @@ character_event = { # An auto cucking event
 			is_ruler = yes
 			any_spouse = { is_ruler = yes }
 			any_consort = { is_ruler = yes }
-			AND = { # If she's pregnant with someone else's child, we can still squeeze in there
-				is_pregnant = yes
-				father_of_unborn = {
-					the_source = {
-						NOT = { character = PREV }
-					}
-				}
-			}
-			NOT = { is_pregnant = yes }
 		}
 		NOT = {
 			any_child = {
@@ -139,11 +136,24 @@ character_event = { # An auto cucking event
 				count = 3
 			}
 		}
+		NOT = { is_pregnant = yes } # The unsafe cucking might be throwing our game off a bit
+		
+		# OR = { # If she's pregnant with someone else's child, we can still squeeze in there
+			# AND = {
+				# is_pregnant = yes
+				# father_of_unborn = {
+					# the_source = {
+						# NOT = { character = PREV }
+					# }
+				# }
+			# }
+			# NOT = { is_pregnant = yes }
+		# }
 		
 	}
 	
 	mean_time_to_happen = {
-		months = 12
+		months = 24
 		
 		modifier = { # Slow down the cucking if she already has some of your children
 			factor = 1.5
@@ -161,36 +171,54 @@ character_event = { # An auto cucking event
 				count = 2
 			}
 		}
+		
+		
+		modifier = { # Speed up the cucking if she's good to go
+			factor = 0.75
+			OR = {
+				any_spouse = {
+					the_source = {
+						character = PREV
+					}
+				}
+				any_consort = {
+					the_source = {
+						character = PREV
+					}
+				}
+			}
+			NOT = {
+				any_child = {
+					is_alive = yes
+					trait = one_drop
+					count = 2
+				}
+			}
+		}
 	}
 	
 	option = { # Commands for wives and concubines
 		trigger = {
 			the_source = {
-				if = {
-					limit = {
-						OR = {
-							any_spouse = { character = ROOT }
-							any_spouse = { character = ROOT }
-						}
-					}
+				OR = {
+					any_spouse = { character = ROOT }
+					any_consort = { character = ROOT }
 				}
 			}
 		}
-		the_source = { ROOT = { unsafe_impregnate = PREV } }
+		the_source = { ROOT = { impregnate = PREV } }
+		log = "Info: [This.GetBestName] ([This.GetID]) is getting a bun in the oven."
 	}
 	option = {
 		trigger = { # Commands for unknown women
 			the_source = {
-				if = {
-					limit = {
-						NOR = {
-							any_spouse = { character = ROOT }
-							any_spouse = { character = ROOT }
-						}
-					}
+				NOR = {
+					any_spouse = { character = ROOT }
+					any_consort = { character = ROOT }
 				}
 			}
 		}
-		the_source = { ROOT = { unsafe_impregnate_cuckoo = PREV } }
+		the_source = { ROOT = { impregnate_cuckoo = PREV } }
+		log = "Info: [This.GetBestName] ([This.GetID]) is getting a bagel in the oven."
 	}
 }
